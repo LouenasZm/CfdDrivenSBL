@@ -2,8 +2,7 @@ name: CI
 
 on:
   push:
-    branches:
-      - "**"
+    branches: [main]
   pull_request:
 
 jobs:
@@ -39,3 +38,13 @@ jobs:
         run: |
           python examples/01_sparse_pce_ishigami.py
           python examples/02_multimodal_polynomial.py
+
+  # Single aggregate check to mark as "required" in the branch ruleset,
+  # so changing the Python matrix never leaves PRs waiting on stale check names.
+  ci-ok:
+    needs: tests
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: All test jobs passed
+        run: test "${{ needs.tests.result }}" = "success"
